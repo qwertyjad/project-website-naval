@@ -29,8 +29,7 @@ const AuthContainer = ({
   const handleLoginSubmit = (data: any) => {
     // Store login data for reference
     setLoginData(data);
-    // In a real app, this would verify credentials with the server
-    // and redirect to dashboard
+    // Redirect to dashboard after successful login
     onAuthenticated();
   };
 

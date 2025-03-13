@@ -67,11 +67,25 @@ const LoginForm = ({
         throw new Error(result.error || "Login failed");
       }
 
-      // After successful login, call the onLogin callback
-      onLogin(data);
+      // Store email for 2FA if needed
+      localStorage.setItem("tempEmail", data.email);
+
+      if (result.requiresTwoFactor) {
+        // If 2FA is required, show the 2FA form
+        onShowTwoFactor();
+      } else {
+        // If no 2FA required, store auth info and proceed
+        localStorage.setItem("authToken", "logged-in");
+        localStorage.setItem("user", JSON.stringify(result.user));
+        // After successful login, call the onLogin callback
+        onLogin(data);
+      }
     } catch (error) {
       console.error("Login error:", error);
-      // You could add toast notification here
+      alert(
+        "Login failed: " +
+          (error instanceof Error ? error.message : "Unknown error"),
+      );
     } finally {
       setIsLoading(false);
     }

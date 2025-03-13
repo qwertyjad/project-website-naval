@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
     }
 
     // In a real app, you would validate the 2FA code against a proper 2FA system
-    // This is a simplified example that just checks if the code is '123456'
-    if (code !== "123456") {
+    // This is a simplified example that accepts any 6-digit code for demo purposes
+    if (code.length !== 6 || !/^\d+$/.test(code)) {
       return NextResponse.json(
         { error: "Invalid verification code" },
         { status: 401 },

@@ -74,7 +74,7 @@ const TwoFactorForm = ({
       }
 
       // Store auth token
-      localStorage.setItem("authToken", result.token);
+      localStorage.setItem("authToken", result.token || "verified");
       localStorage.setItem("user", JSON.stringify(result.user));
       localStorage.removeItem("tempEmail");
 
