@@ -42,7 +42,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       user,
       message: "Login successful",
-      requiresTwoFactor: user.two_factor_enabled === 1,
     });
   } catch (error) {
     console.error("Login error:", error);

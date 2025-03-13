@@ -70,16 +70,11 @@ const LoginForm = ({
       // Store email for 2FA if needed
       localStorage.setItem("tempEmail", data.email);
 
-      if (result.requiresTwoFactor) {
-        // If 2FA is required, show the 2FA form
-        onShowTwoFactor();
-      } else {
-        // If no 2FA required, store auth info and proceed
-        localStorage.setItem("authToken", "logged-in");
-        localStorage.setItem("user", JSON.stringify(result.user));
-        // After successful login, call the onLogin callback
-        onLogin(data);
-      }
+      // Store auth info and proceed directly to dashboard on login
+      localStorage.setItem("authToken", "logged-in");
+      localStorage.setItem("user", JSON.stringify(result.user));
+      // After successful login, call the onLogin callback
+      onLogin(data);
     } catch (error) {
       console.error("Login error:", error);
       alert(

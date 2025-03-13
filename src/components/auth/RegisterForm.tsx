@@ -81,6 +81,10 @@ const RegisterForm = ({
         localStorage.setItem("tempEmail", data.email);
         // After successful registration, show 2FA form via the onSubmit callback
         onSubmit(data);
+        // Display message about 2FA setup
+        alert(
+          "Registration successful! Please set up two-factor authentication for your account security.",
+        );
       } catch (error) {
         console.error("Registration error:", error);
         // You could add toast notification here
