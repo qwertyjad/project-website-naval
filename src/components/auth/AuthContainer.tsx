@@ -36,10 +36,10 @@ const AuthContainer = ({
   };
 
   const handleRegisterSubmit = (data: any) => {
-    // In a real app, this would send registration data to the server
-    console.log("Registration data:", data);
     // After successful registration, show 2FA setup
     setShowTwoFactor(true);
+    // Store login data for 2FA verification
+    setLoginData(data);
   };
 
   const handleTwoFactorVerify = async (code: string) => {

@@ -77,6 +77,8 @@ const RegisterForm = ({
           throw new Error(result.error || "Registration failed");
         }
 
+        // Store email temporarily for 2FA verification
+        localStorage.setItem("tempEmail", data.email);
         onSubmit(data);
       } catch (error) {
         console.error("Registration error:", error);

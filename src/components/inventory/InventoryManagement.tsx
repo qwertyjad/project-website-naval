@@ -50,7 +50,7 @@ const InventoryManagement = ({
   };
 
   // Fetch items when search query changes
-  useEffect(() => {
+  React.useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       fetchItems();
     }, 500);
@@ -59,7 +59,7 @@ const InventoryManagement = ({
   }, [searchQuery]);
 
   // Initial fetch
-  useEffect(() => {
+  React.useEffect(() => {
     fetchItems();
   }, []);
 

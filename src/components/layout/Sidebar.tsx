@@ -50,6 +50,12 @@ const Sidebar = ({ className = "" }: SidebarProps) => {
     },
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    window.location.href = "/";
+  };
+
   return (
     <div
       className={cn(
@@ -116,7 +122,12 @@ const Sidebar = ({ className = "" }: SidebarProps) => {
 
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full"
+                  onClick={handleLogout}
+                >
                   <LogOut className="h-5 w-5" />
                 </Button>
               </TooltipTrigger>

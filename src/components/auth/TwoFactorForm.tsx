@@ -52,8 +52,12 @@ const TwoFactorForm = ({
 
     setIsVerifying(true);
     try {
-      // Get email from localStorage (set during login)
+      // Get email from localStorage (set during login or registration)
       const email = localStorage.getItem("tempEmail");
+
+      if (!email) {
+        throw new Error("Email not found. Please try logging in again.");
+      }
 
       const response = await fetch("/api/auth/verify-2fa", {
         method: "POST",
@@ -83,6 +87,7 @@ const TwoFactorForm = ({
       // Call the onVerify callback (which will redirect to dashboard)
       const success = await onVerify(code);
     } catch (error) {
+      console.error("Verification error:", error);
       setVerificationStatus("error");
       toast({
         title: "Verification Error",
