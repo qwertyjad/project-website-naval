@@ -12,6 +12,7 @@ export default function InventoryPage() {
     const token = localStorage.getItem("authToken");
     if (!token) {
       router.push("/");
+      return;
     }
   }, [router]);
 

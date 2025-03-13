@@ -27,12 +27,11 @@ const AuthContainer = ({
   const [loginData, setLoginData] = useState<any>(null);
 
   const handleLoginSubmit = (data: any) => {
-    // Store login data for 2FA verification
+    // Store login data for reference
     setLoginData(data);
-    // Store email temporarily for 2FA verification
-    localStorage.setItem("tempEmail", data.email);
-    // Show 2FA form
-    setShowTwoFactor(true);
+    // In a real app, this would verify credentials with the server
+    // and redirect to dashboard
+    onAuthenticated();
   };
 
   const handleRegisterSubmit = (data: any) => {

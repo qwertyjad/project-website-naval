@@ -79,6 +79,7 @@ const RegisterForm = ({
 
         // Store email temporarily for 2FA verification
         localStorage.setItem("tempEmail", data.email);
+        // After successful registration, show 2FA form via the onSubmit callback
         onSubmit(data);
       } catch (error) {
         console.error("Registration error:", error);

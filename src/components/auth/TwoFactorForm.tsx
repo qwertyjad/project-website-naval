@@ -78,6 +78,9 @@ const TwoFactorForm = ({
       localStorage.setItem("user", JSON.stringify(result.user));
       localStorage.removeItem("tempEmail");
 
+      // Redirect to dashboard after successful verification
+      window.location.href = "/dashboard";
+
       setVerificationStatus("success");
       toast({
         title: "Verification Successful",

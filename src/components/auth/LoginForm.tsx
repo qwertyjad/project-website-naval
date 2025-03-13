@@ -67,9 +67,8 @@ const LoginForm = ({
         throw new Error(result.error || "Login failed");
       }
 
+      // After successful login, call the onLogin callback
       onLogin(data);
-      // After successful login validation, show 2FA form
-      onShowTwoFactor();
     } catch (error) {
       console.error("Login error:", error);
       // You could add toast notification here
