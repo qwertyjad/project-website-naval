@@ -14,6 +14,7 @@ import {
 import { Input } from "../ui/input";
 import InventoryTable from "./InventoryTable";
 import ItemForm from "./ItemForm";
+import Sidebar from "../layout/Sidebar";
 
 interface InventoryManagementProps {
   defaultTab?: string;
@@ -146,207 +147,227 @@ const InventoryManagement = ({
   };
 
   return (
-    <div className="w-full h-full bg-background p-6 flex flex-col space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Inventory Management
-          </h1>
-          <p className="text-muted-foreground">
-            Manage your construction materials, tools, and equipment inventory.
-          </p>
-        </div>
-        <Button onClick={handleAddItem}>
-          <Plus className="mr-2 h-4 w-4" /> Add New Item
-        </Button>
-      </div>
-
-      <div className="flex items-center space-x-4">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="search"
-            placeholder="Search inventory..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-        <Button variant="outline" size="icon">
-          <Filter className="h-4 w-4" />
-        </Button>
-      </div>
-
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full max-w-2xl grid-cols-4">
-          <TabsTrigger value="all-items">All Items</TabsTrigger>
-          <TabsTrigger value="low-stock">Low Stock</TabsTrigger>
-          <TabsTrigger value="categories">Categories</TabsTrigger>
-          <TabsTrigger value="locations">Locations</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="all-items" className="mt-6">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <Sidebar />
+      <div className="flex-1 overflow-auto">
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Inventory Management
+              </h1>
+              <p className="text-muted-foreground">
+                Manage your construction materials, tools, and equipment
+                inventory.
+              </p>
             </div>
-          ) : (
-            <InventoryTable
-              items={items}
-              onEdit={handleEditItem}
-              onDelete={handleDeleteItem}
-              onAdd={handleAddItem}
-            />
-          )}
-        </TabsContent>
-
-        <TabsContent value="low-stock" className="mt-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Low Stock Items</CardTitle>
-              <CardDescription>
-                Items that are below their minimum stock level and require
-                attention.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <InventoryTable
-                items={[
-                  {
-                    id: "2",
-                    name: "Steel Rebar",
-                    category: "Structural Materials",
-                    quantity: 30,
-                    minLevel: 40,
-                    unit: "Tons",
-                    location: "Warehouse B",
-                    lastUpdated: "2023-10-12",
-                    status: "Low Stock",
-                  },
-                  {
-                    id: "4",
-                    name: "Paint - White",
-                    category: "Finishing Materials",
-                    quantity: 0,
-                    minLevel: 20,
-                    unit: "Gallons",
-                    location: "Warehouse C",
-                    lastUpdated: "2023-10-08",
-                    status: "Out of Stock",
-                  },
-                  {
-                    id: "7",
-                    name: "Safety Helmets",
-                    category: "Safety Equipment",
-                    quantity: 15,
-                    minLevel: 20,
-                    unit: "Pieces",
-                    location: "Storage Room",
-                    lastUpdated: "2023-10-11",
-                    status: "Low Stock",
-                  },
-                  {
-                    id: "10",
-                    name: "Excavator",
-                    category: "Heavy Equipment",
-                    quantity: 0,
-                    minLevel: 1,
-                    unit: "Units",
-                    location: "Equipment Yard",
-                    lastUpdated: "2023-10-07",
-                    status: "Out of Stock",
-                  },
-                ]}
-                onEdit={handleEditItem}
-                onDelete={handleDeleteItem}
-                onAdd={handleAddItem}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="categories" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              { name: "Building Materials", count: 45, icon: Package },
-              { name: "Tools", count: 32, icon: Package },
-              { name: "Safety Equipment", count: 18, icon: Package },
-              { name: "Electrical Materials", count: 24, icon: Package },
-              { name: "Plumbing Materials", count: 19, icon: Package },
-              { name: "Heavy Equipment", count: 7, icon: Package },
-            ].map((category) => (
-              <Card
-                key={category.name}
-                className="hover:bg-muted/50 transition-colors cursor-pointer"
-              >
-                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                  <CardTitle className="text-md font-medium">
-                    {category.name}
-                  </CardTitle>
-                  <category.icon className="h-5 w-5 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <p className="text-2xl font-bold">{category.count}</p>
-                  <p className="text-xs text-muted-foreground">
-                    items in inventory
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            <Button onClick={handleAddItem}>
+              <Plus className="mr-2 h-4 w-4" /> Add New Item
+            </Button>
           </div>
-        </TabsContent>
 
-        <TabsContent value="locations" className="mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[
-              {
-                name: "Warehouse A",
-                count: 78,
-                address: "123 Main St, Building A",
-              },
-              {
-                name: "Warehouse B",
-                count: 45,
-                address: "123 Main St, Building B",
-              },
-              { name: "Warehouse C", count: 36, address: "456 Commerce Dr" },
-              { name: "Storage Room", count: 24, address: "789 Site Office" },
-              {
-                name: "Equipment Yard",
-                count: 12,
-                address: "101 Construction Ave",
-              },
-            ].map((location) => (
-              <Card
-                key={location.name}
-                className="hover:bg-muted/50 transition-colors cursor-pointer"
-              >
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-md font-medium">
-                    {location.name}
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    {location.address}
+          <div className="flex items-center space-x-4">
+            <div className="relative flex-1 max-w-sm">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search inventory..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" size="icon">
+              <Filter className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
+            <TabsList className="grid w-full max-w-2xl grid-cols-4">
+              <TabsTrigger value="all-items">All Items</TabsTrigger>
+              <TabsTrigger value="low-stock">Low Stock</TabsTrigger>
+              <TabsTrigger value="categories">Categories</TabsTrigger>
+              <TabsTrigger value="locations">Locations</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="all-items" className="mt-6">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-64">
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <InventoryTable
+                  items={items}
+                  onEdit={handleEditItem}
+                  onDelete={handleDeleteItem}
+                  onAdd={handleAddItem}
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent value="low-stock" className="mt-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Low Stock Items</CardTitle>
+                  <CardDescription>
+                    Items that are below their minimum stock level and require
+                    attention.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-2xl font-bold">{location.count}</p>
-                  <p className="text-xs text-muted-foreground">items stored</p>
+                  <InventoryTable
+                    items={[
+                      {
+                        id: "2",
+                        name: "Steel Rebar",
+                        category: "Structural Materials",
+                        quantity: 30,
+                        minLevel: 40,
+                        unit: "Tons",
+                        location: "Warehouse B",
+                        lastUpdated: "2023-10-12",
+                        status: "Low Stock",
+                      },
+                      {
+                        id: "4",
+                        name: "Paint - White",
+                        category: "Finishing Materials",
+                        quantity: 0,
+                        minLevel: 20,
+                        unit: "Gallons",
+                        location: "Warehouse C",
+                        lastUpdated: "2023-10-08",
+                        status: "Out of Stock",
+                      },
+                      {
+                        id: "7",
+                        name: "Safety Helmets",
+                        category: "Safety Equipment",
+                        quantity: 15,
+                        minLevel: 20,
+                        unit: "Pieces",
+                        location: "Storage Room",
+                        lastUpdated: "2023-10-11",
+                        status: "Low Stock",
+                      },
+                      {
+                        id: "10",
+                        name: "Excavator",
+                        category: "Heavy Equipment",
+                        quantity: 0,
+                        minLevel: 1,
+                        unit: "Units",
+                        location: "Equipment Yard",
+                        lastUpdated: "2023-10-07",
+                        status: "Out of Stock",
+                      },
+                    ]}
+                    onEdit={handleEditItem}
+                    onDelete={handleDeleteItem}
+                    onAdd={handleAddItem}
+                  />
                 </CardContent>
               </Card>
-            ))}
-          </div>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
 
-      {showItemForm && (
-        <ItemForm
-          isOpen={showItemForm}
-          onClose={handleCloseForm}
-          onSubmit={handleSubmitForm}
-          editItem={editingItem}
-        />
-      )}
+            <TabsContent value="categories" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  { name: "Building Materials", count: 45, icon: Package },
+                  { name: "Tools", count: 32, icon: Package },
+                  { name: "Safety Equipment", count: 18, icon: Package },
+                  { name: "Electrical Materials", count: 24, icon: Package },
+                  { name: "Plumbing Materials", count: 19, icon: Package },
+                  { name: "Heavy Equipment", count: 7, icon: Package },
+                ].map((category) => (
+                  <Card
+                    key={category.name}
+                    className="hover:bg-muted/50 transition-colors cursor-pointer"
+                  >
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-md font-medium">
+                        {category.name}
+                      </CardTitle>
+                      <category.icon className="h-5 w-5 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold">{category.count}</p>
+                      <p className="text-xs text-muted-foreground">
+                        items in inventory
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="locations" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  {
+                    name: "Warehouse A",
+                    count: 78,
+                    address: "123 Main St, Building A",
+                  },
+                  {
+                    name: "Warehouse B",
+                    count: 45,
+                    address: "123 Main St, Building B",
+                  },
+                  {
+                    name: "Warehouse C",
+                    count: 36,
+                    address: "456 Commerce Dr",
+                  },
+                  {
+                    name: "Storage Room",
+                    count: 24,
+                    address: "789 Site Office",
+                  },
+                  {
+                    name: "Equipment Yard",
+                    count: 12,
+                    address: "101 Construction Ave",
+                  },
+                ].map((location) => (
+                  <Card
+                    key={location.name}
+                    className="hover:bg-muted/50 transition-colors cursor-pointer"
+                  >
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-md font-medium">
+                        {location.name}
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        {location.address}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-2xl font-bold">{location.count}</p>
+                      <p className="text-xs text-muted-foreground">
+                        items stored
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {showItemForm && (
+            <ItemForm
+              isOpen={showItemForm}
+              onClose={handleCloseForm}
+              onSubmit={handleSubmitForm}
+              editItem={editingItem}
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 };
