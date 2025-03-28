@@ -18,21 +18,24 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "baseUrl": ".", // Added to make paths relative to tsconfig.json location
+    "paths": {
+      "@/*": ["src/*"] // Updated from "./src/*" to "src/*" (works with baseUrl)
+    },
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+    // Optional: Add type checking improvements
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "strictFunctionTypes": true
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
     ".next/types/**/*.ts",
     "next.config.js"
   ],

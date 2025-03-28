@@ -1,3 +1,4 @@
+// Sidebar.tsx
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,7 +19,10 @@ import {
   Settings,
   LogOut,
   HelpCircle,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface SidebarProps {
   className?: string;
@@ -26,6 +30,7 @@ interface SidebarProps {
 
 const Sidebar = ({ className = "" }: SidebarProps) => {
   const pathname = usePathname();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   const navItems = [
     {
@@ -117,6 +122,26 @@ const Sidebar = ({ className = "" }: SidebarProps) => {
               </TooltipTrigger>
               <TooltipContent>
                 <p>Help</p>
+              </TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full"
+                  onClick={toggleDarkMode}
+                >
+                  {isDarkMode ? (
+                    <Sun className="h-5 w-5" />
+                  ) : (
+                    <Moon className="h-5 w-5" />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{isDarkMode ? "Light Mode" : "Dark Mode"}</p>
               </TooltipContent>
             </Tooltip>
 
