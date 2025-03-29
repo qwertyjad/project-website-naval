@@ -44,6 +44,29 @@ app.get("/api/user/:id", (req, res) => {
   });
 });
 
+// API Endpoint to fetch low stock items
+app.get("/api/inventory/low-stock", (req, res) => {
+  const query = `
+    SELECT 
+      id,
+      name,
+      category,
+      quantity,
+      unit,
+      min_stock_level
+    FROM inventory_items
+    WHERE quantity <= min_stock_level
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching low stock items:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+    res.json(results);
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

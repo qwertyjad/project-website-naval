@@ -1,6 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeQuery } from "@/lib/db";
 
+export async function POST(request: NextRequest) {
+  try {
+    const item = await request.json();
+    console.log('POST request data:', item);
+
+    if (
+      !item.name ||
+      !item.category ||
+      item.quantity === undefined ||
+      !item.unit
+    ) {
+      return NextResponse.json(
+        { error: "Required fields are missing" },
+        { status: 400 },
+      );
+    }
+
+    const query = `
+      INSERT INTO inventory_items (
+        name, category, quantity, unit, min_stock_level, location, supplier, cost, description, last_updated
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+
+    const params = [
+      item.name,
+      item.category,
+      item.quantity,
+      item.unit,
+      item.min_stock_level || 5,
+      item.location || "Main Warehouse",
+      item.supplier || "Default Supplier",
+      item.cost || 0,
+      item.description || "",
+    ];
+
+    const result = (await executeQuery(query, params)) as any;
+
+    if (result.affectedRows > 0) {
+      return NextResponse.json({
+        message: "Item added successfully",
+        id: result.insertId, // Return the auto-generated ID
+      });
+    } else {
+      throw new Error("Failed to add item");
+    }
+  } catch (error) {
+    console.error("Error adding inventory item:", error);
+    return NextResponse.json(
+      { error: "An error occurred while adding the item" },
+      { status: 500 },
+    );
+  }
+}
+
+// Include your existing GET function if needed
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
@@ -44,60 +99,6 @@ export async function GET(request: NextRequest) {
     console.error("Error fetching inventory items:", error);
     return NextResponse.json(
       { error: "An error occurred while fetching inventory items" },
-      { status: 500 },
-    );
-  }
-}
-
-export async function POST(request: NextRequest) {
-  try {
-    const item = await request.json();
-
-    // Validate required fields
-    if (
-      !item.name ||
-      !item.category ||
-      item.quantity === undefined ||
-      !item.unit
-    ) {
-      return NextResponse.json(
-        { error: "Required fields are missing" },
-        { status: 400 },
-      );
-    }
-
-    const query = `
-      INSERT INTO inventory_items (
-        name, category, quantity, unit, min_stock_level, location, supplier, cost, description, last_updated
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
-    `;
-
-    const params = [
-      item.name,
-      item.category,
-      item.quantity,
-      item.unit,
-      item.minStockLevel || 5,
-      item.location || "Main Warehouse",
-      item.supplier || "Default Supplier",
-      item.cost || 0,
-      item.description || "",
-    ];
-
-    const result = (await executeQuery(query, params)) as any;
-
-    if (result.affectedRows > 0) {
-      return NextResponse.json({
-        message: "Item added successfully",
-        id: result.insertId,
-      });
-    } else {
-      throw new Error("Failed to add item");
-    }
-  } catch (error) {
-    console.error("Error adding inventory item:", error);
-    return NextResponse.json(
-      { error: "An error occurred while adding the item" },
       { status: 500 },
     );
   }

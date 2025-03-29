@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../ui/table";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { AlertTriangle, ArrowUpDown, Package, ShoppingCart } from "lucide-react";
+import { AlertTriangle, ArrowUpDown, Package, Eye, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface LowStockItem {
   id: string;
@@ -14,31 +15,82 @@ interface LowStockItem {
   status: "critical" | "low";
 }
 
-interface LowStockAlertsProps {
-  items?: LowStockItem[];
-  onOrderClick?: (itemId: string) => void;
-  onViewClick?: (itemId: string) => void;
-}
+const LowStockAlerts = () => {
+  const [items, setItems] = useState<LowStockItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-const LowStockAlerts = ({
-  items = [
-    { id: "1", name: "Cement", category: "Building Materials", currentStock: 5, minimumStock: 20, unit: "bags", status: "critical" },
-    { id: "2", name: "Steel Rebar", category: "Structural", currentStock: 15, minimumStock: 30, unit: "pieces", status: "low" },
-    { id: "3", name: "Bricks", category: "Building Materials", currentStock: 200, minimumStock: 500, unit: "pieces", status: "low" },
-    { id: "4", name: "Safety Helmets", category: "Safety Equipment", currentStock: 3, minimumStock: 10, unit: "pieces", status: "critical" },
-    { id: "5", name: "Paint - White", category: "Finishing", currentStock: 8, minimumStock: 15, unit: "gallons", status: "low" },
-  ],
-  onOrderClick = () => {},
-  onViewClick = () => {},
-}: LowStockAlertsProps) => {
+  useEffect(() => {
+    const fetchLowStockItems = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/dashboard/low-stock');
+        if (!response.ok) {
+          throw new Error('Failed to fetch low stock items');
+        }
+        const data = await response.json();
+        setItems(Array.isArray(data.items) ? data.items : []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLowStockItems();
+  }, []);
+
+  const handleOrderClick = async (itemId: string) => {
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ itemId, quantity: 10 }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      // Refresh the low stock items after successful order
+      const refreshResponse = await fetch('/api/dashboard/low-stock');
+      const refreshedData = await refreshResponse.json();
+      setItems(Array.isArray(refreshedData.items) ? refreshedData.items : []);
+
+      alert(`Order placed for item ${itemId}`);
+    } catch (err) {
+      console.error('Order error:', err);
+      alert('Failed to place order');
+    }
+  };
+
+  const handleViewClick = (itemId: string) => {
+    router.push(`/inventory/${itemId}`);
+  };
+
+  if (loading) {
+    return <div>Loading low stock alerts...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <div className="w-full h-full rounded-lg bg-white shadow-lg dark:bg-black p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-amber-500" />
           <h3 className="text-lg font-medium text-gray-800 dark:text-white">Low Stock Alerts</h3>
-          <Badge variant="destructive" className="ml-2">{items.filter(item => item.status === "critical").length} Critical</Badge>
-          <Badge variant="secondary" className="ml-1">{items.filter(item => item.status === "low").length} Low</Badge>
+          <Badge variant="destructive" className="ml-2">
+            {items.filter(item => item.status === "critical").length} Critical
+          </Badge>
+          <Badge variant="secondary" className="ml-1">
+            {items.filter(item => item.status === "low").length} Low
+          </Badge>
         </div>
         <Button variant="outline" size="sm" className="text-xs">
           <ArrowUpDown className="h-3.5 w-3.5 mr-1" /> Sort
@@ -73,11 +125,21 @@ const LowStockAlerts = ({
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Button variant="outline" size="sm" onClick={() => onViewClick(item.id)}>
-                      <Package className="h-3.5 w-3.5 mr-1" /> View
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleViewClick(item.id)}
+                      title="View Item Details"
+                    >
+                      <Eye className="h-4 w-4" />
                     </Button>
-                    <Button variant="default" size="sm" onClick={() => onOrderClick(item.id)}>
-                      <ShoppingCart className="h-3.5 w-3.5 mr-1" /> Order
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleOrderClick(item.id)}
+                      title="Place Order"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
                     </Button>
                   </div>
                 </TableCell>

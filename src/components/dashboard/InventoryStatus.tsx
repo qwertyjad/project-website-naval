@@ -11,23 +11,17 @@ interface CategoryData {
 }
 
 interface InventoryStatusProps {
-  categories?: CategoryData[];
-  totalItems?: number;
-  totalValue?: number;
-  stockHealth?: number;
+  categories: CategoryData[];
+  totalItems: number;
+  totalValue: number;
+  stockHealth: number;
 }
 
 const InventoryStatus = ({
-  categories = [
-    { name: "Tools", value: 4, color: "#4B5EAA" },      // Professional blue
-    { name: "Materials", value: 3, color: "#2E7D32" },  // Deep green
-    { name: "Equipment", value: 2, color: "#6D4C41" },  // Rich brown
-    { name: "Safety Gear", value: 1, color: "#0288D1" }, // Bright blue
-    { name: "Electrical", value: 1, color: "#7B1FA2" }, // Deep purple
-  ],
-  totalItems = 11,
-  totalValue = 61366.00,
-  stockHealth = 55,
+  categories,
+  totalItems,
+  totalValue,
+  stockHealth,
 }: InventoryStatusProps) => {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-PH", { 
@@ -40,7 +34,7 @@ const InventoryStatus = ({
   const maxValue = Math.max(...categories.map((c) => c.value));
   
   return (
-    <Card className="w-full h-full border-none  dark:bg-black">
+    <Card className="w-full h-full border-none dark:bg-black">
       <CardHeader className="border-b border-gray-100 dark:border-gray-700">
         <CardTitle className="text-2xl font-semibold tracking-tight">
           Inventory Status
@@ -53,7 +47,7 @@ const InventoryStatus = ({
               icon: Package,
               title: "Total Items",
               value: totalItems.toLocaleString('en-PH'),
-              subtext: "Across 5 categories",
+              subtext: `Across ${categories.length} categories`,
               color: "text-blue-600",
             },
             {

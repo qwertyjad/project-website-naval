@@ -3,10 +3,10 @@ import { executeQuery } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params: routeParams }: { params: { id: string } },
 ) {
   try {
-    const id = params.id;
+    const id = routeParams.id;
     const query = "SELECT * FROM inventory_items WHERE id = ?";
     const items = (await executeQuery(query, [id])) as any[];
 
@@ -26,13 +26,13 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params: routeParams }: { params: { id: string } },
 ) {
   try {
-    const id = params.id;
+    const id = routeParams.id;
     const item = await request.json();
+    console.log('PUT request data:', item);
 
-    // Validate required fields
     if (
       !item.name ||
       !item.category ||
@@ -60,12 +60,12 @@ export async function PUT(
       WHERE id = ?
     `;
 
-    const params = [
+    const queryParams = [
       item.name,
       item.category,
       item.quantity,
       item.unit,
-      item.minStockLevel || 5,
+      item.min_stock_level || 5,
       item.location || "Main Warehouse",
       item.supplier || "Default Supplier",
       item.cost || 0,
@@ -73,7 +73,7 @@ export async function PUT(
       id,
     ];
 
-    const result = (await executeQuery(query, params)) as any;
+    const result = (await executeQuery(query, queryParams)) as any;
 
     if (result.affectedRows > 0) {
       return NextResponse.json({
@@ -96,10 +96,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } },
+  { params: routeParams }: { params: { id: string } },
 ) {
   try {
-    const id = params.id;
+    const id = routeParams.id;
     const query = "DELETE FROM inventory_items WHERE id = ?";
     const result = (await executeQuery(query, [id])) as any;
 

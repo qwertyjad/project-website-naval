@@ -36,49 +36,51 @@ interface InventoryItem {
   name: string;
   category: string;
   quantity: number;
-  minLevel: number;
   unit: string;
+  minStockLevel: number; // Changed to match ItemForm
   location: string;
-  lastUpdated: string;
+  supplier: string;
+  cost: number;
+  description: string;
+  lastUpdated: string; // CamelCase for consistency
   status: "In Stock" | "Low Stock" | "Out of Stock";
 }
 
 interface InventoryTableProps {
-  items?: InventoryItem[];
-  onEdit?: (item: InventoryItem) => void;
-  onDelete?: (id: string) => void;
-  onAdd?: () => void;
+  items: InventoryItem[];
+  onEdit: (item: InventoryItem) => void;
+  onDelete: (id: string) => void;
+  onAdd: () => void;
 }
 
 const InventoryTable = ({
-  items = defaultItems,
-  onEdit = () => {},
-  onDelete = () => {},
-  onAdd = () => {},
+  items,
+  onEdit,
+  onDelete,
+  onAdd,
 }: InventoryTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const itemsPerPage = 10;
 
-  // Filter items based on search term
-  const filteredItems = items.filter(
-    (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.location.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredItems = items
+    .filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.location.toLowerCase().includes(searchTerm.toLowerCase()),
+    )
+    .filter((item) => (filterStatus ? item.status === filterStatus : true));
 
-  // Calculate pagination
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedItems = filteredItems.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  const paginatedItems = filteredItems.slice(startIndex, startIndex + itemsPerPage);
 
-  // Handle page change
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
@@ -101,11 +103,15 @@ const InventoryTable = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem>All Items</DropdownMenuItem>
-              <DropdownMenuItem>Low Stock</DropdownMenuItem>
-              <DropdownMenuItem>Out of Stock</DropdownMenuItem>
-              <DropdownMenuItem>By Category</DropdownMenuItem>
-              <DropdownMenuItem>By Location</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus(null)}>
+                All Items
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus("Low Stock")}>
+                Low Stock
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterStatus("Out of Stock")}>
+                Out of Stock
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -124,6 +130,7 @@ const InventoryTable = ({
               <TableHead>Quantity</TableHead>
               <TableHead>Unit</TableHead>
               <TableHead>Location</TableHead>
+              <TableHead>Min Stock</TableHead> {/* Added */}
               <TableHead>Status</TableHead>
               <TableHead>Last Updated</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -138,21 +145,21 @@ const InventoryTable = ({
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell>{item.unit}</TableCell>
                   <TableCell>{item.location}</TableCell>
+                  <TableCell>{item.minStockLevel}</TableCell> {/* Added */}
                   <TableCell>
                     <Badge
                       variant={
                         item.status === "In Stock"
                           ? "default"
                           : item.status === "Low Stock"
-                            ? "secondary"
-                            : "destructive"
+                          ? "secondary"
+                          : "destructive"
                       }
                       className="flex w-fit items-center gap-1"
                     >
-                      {item.status === "Low Stock" ||
-                        (item.status === "Out of Stock" && (
-                          <AlertTriangle className="h-3 w-3" />
-                        ))}
+                      {(item.status === "Low Stock" || item.status === "Out of Stock") && (
+                        <AlertTriangle className="h-3 w-3" />
+                      )}
                       {item.status}
                     </Badge>
                   </TableCell>
@@ -180,10 +187,7 @@ const InventoryTable = ({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={8}
-                  className="text-center py-6 text-muted-foreground"
-                >
+                <TableCell colSpan={9} className="text-center py-6 text-muted-foreground">
                   No inventory items found
                 </TableCell>
               </TableRow>
@@ -192,7 +196,6 @@ const InventoryTable = ({
         </Table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-end space-x-2 py-4">
           <Button
@@ -219,141 +222,5 @@ const InventoryTable = ({
     </div>
   );
 };
-
-// Default mock data
-const defaultItems: InventoryItem[] = [
-  {
-    id: "1",
-    name: "Cement",
-    category: "Building Materials",
-    quantity: 150,
-    minLevel: 50,
-    unit: "Bags",
-    location: "Warehouse A",
-    lastUpdated: "2023-10-15",
-    status: "In Stock",
-  },
-  {
-    id: "2",
-    name: "Steel Rebar",
-    category: "Structural Materials",
-    quantity: 30,
-    minLevel: 40,
-    unit: "Tons",
-    location: "Warehouse B",
-    lastUpdated: "2023-10-12",
-    status: "Low Stock",
-  },
-  {
-    id: "3",
-    name: "Bricks",
-    category: "Building Materials",
-    quantity: 2500,
-    minLevel: 1000,
-    unit: "Pieces",
-    location: "Warehouse A",
-    lastUpdated: "2023-10-10",
-    status: "In Stock",
-  },
-  {
-    id: "4",
-    name: "Paint - White",
-    category: "Finishing Materials",
-    quantity: 0,
-    minLevel: 20,
-    unit: "Gallons",
-    location: "Warehouse C",
-    lastUpdated: "2023-10-08",
-    status: "Out of Stock",
-  },
-  {
-    id: "5",
-    name: "Plywood",
-    category: "Wood Materials",
-    quantity: 75,
-    minLevel: 30,
-    unit: "Sheets",
-    location: "Warehouse B",
-    lastUpdated: "2023-10-14",
-    status: "In Stock",
-  },
-  {
-    id: "6",
-    name: "Concrete Mixer",
-    category: "Equipment",
-    quantity: 3,
-    minLevel: 2,
-    unit: "Units",
-    location: "Equipment Yard",
-    lastUpdated: "2023-10-05",
-    status: "In Stock",
-  },
-  {
-    id: "7",
-    name: "Safety Helmets",
-    category: "Safety Equipment",
-    quantity: 15,
-    minLevel: 20,
-    unit: "Pieces",
-    location: "Storage Room",
-    lastUpdated: "2023-10-11",
-    status: "Low Stock",
-  },
-  {
-    id: "8",
-    name: "Electrical Wires",
-    category: "Electrical Materials",
-    quantity: 500,
-    minLevel: 200,
-    unit: "Meters",
-    location: "Warehouse C",
-    lastUpdated: "2023-10-09",
-    status: "In Stock",
-  },
-  {
-    id: "9",
-    name: "PVC Pipes",
-    category: "Plumbing Materials",
-    quantity: 120,
-    minLevel: 50,
-    unit: "Pieces",
-    location: "Warehouse A",
-    lastUpdated: "2023-10-13",
-    status: "In Stock",
-  },
-  {
-    id: "10",
-    name: "Excavator",
-    category: "Heavy Equipment",
-    quantity: 0,
-    minLevel: 1,
-    unit: "Units",
-    location: "Equipment Yard",
-    lastUpdated: "2023-10-07",
-    status: "Out of Stock",
-  },
-  {
-    id: "11",
-    name: "Window Frames",
-    category: "Finishing Materials",
-    quantity: 35,
-    minLevel: 20,
-    unit: "Pieces",
-    location: "Warehouse B",
-    lastUpdated: "2023-10-06",
-    status: "In Stock",
-  },
-  {
-    id: "12",
-    name: "Door Hinges",
-    category: "Hardware",
-    quantity: 200,
-    minLevel: 100,
-    unit: "Pieces",
-    location: "Storage Room",
-    lastUpdated: "2023-10-04",
-    status: "In Stock",
-  },
-];
 
 export default InventoryTable;

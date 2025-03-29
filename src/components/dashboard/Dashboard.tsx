@@ -1,4 +1,3 @@
-// src/components/dashboard/Dashboard.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -7,10 +6,23 @@ import InventoryOverview from "./InventoryOverview";
 import LowStockAlerts from "./LowStockAlerts";
 import InventoryStatus from "./InventoryStatus";
 
+interface CategoryData {
+  name: string;
+  value: number;
+  color: string;
+}
+
 interface DashboardProps {
   userName?: string;
   userRole?: string;
-  data?: any;
+  data: {
+    totalItems: number;
+    totalCategories: number;
+    inventoryValue: number;
+    lowStockCount: number;
+    categories: CategoryData[];
+    stockHealth: number;
+  } | null;
 }
 
 const Dashboard: React.FC<DashboardProps> = ({
@@ -45,7 +57,7 @@ const Dashboard: React.FC<DashboardProps> = ({
       <Sidebar />
       <div className="flex-1 overflow-auto">
         <div className="p-6 space-y-6">
-          <header className="flex justify-between items-center rounded-lg -4">
+          <header className="flex justify-between items-center rounded-lg">
             <div>
               <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
               <p className="text-muted-foreground">
@@ -61,28 +73,19 @@ const Dashboard: React.FC<DashboardProps> = ({
           </header>
 
           <InventoryOverview
-            totalItems={data?.totalItems || 247}
-            totalCategories={data?.totalCategories || 12}
-            inventoryValue={data?.inventoryValue || 125750}
-            lowStockCount={data?.lowStockCount || 8}
+            totalItems={data?.totalItems || 0}
+            totalCategories={data?.totalCategories || 0}
+            inventoryValue={data?.inventoryValue || 0}
+            lowStockCount={data?.lowStockCount || 0}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <LowStockAlerts
-              onViewClick={handleViewItem}
-              onOrderClick={handleOrderItem}
-            />
+            <LowStockAlerts />
             <InventoryStatus
-              categories={data?.categories || [
-                { name: "Tools", value: 120, color: "#FF6384" },
-                { name: "Materials", value: 85, color: "#36A2EB" },
-                { name: "Equipment", value: 65, color: "#FFCE56" },
-                { name: "Safety Gear", value: 45, color: "#4BC0C0" },
-                { name: "Electrical", value: 30, color: "#9966FF" },
-              ]}
-              totalItems={data?.totalItems || 345}
-              totalValue={data?.inventoryValue || 125000}
-              stockHealth={data?.stockHealth || 78}
+              categories={data?.categories || []}
+              totalItems={data?.totalItems || 0}
+              totalValue={data?.inventoryValue || 0}
+              stockHealth={data?.stockHealth || 0}
             />
           </div>
         </div>

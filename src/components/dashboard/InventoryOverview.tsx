@@ -1,28 +1,28 @@
 import React from "react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../ui/card"; // Added CardFooter
 import { Package, Boxes, DollarSign, AlertTriangle } from "lucide-react";
 
 interface InventoryOverviewProps {
-  totalItems?: number;
-  totalCategories?: number;
-  inventoryValue?: number;
-  lowStockCount?: number;
+  totalItems: number;
+  totalCategories: number;
+  inventoryValue: number;
+  lowStockCount: number;
 }
 
 const InventoryOverview = ({
-  totalItems = 247,
-  totalCategories = 12,
-  inventoryValue = 125750,
-  lowStockCount = 8,
+  totalItems,
+  totalCategories,
+  inventoryValue,
+  lowStockCount,
 }: InventoryOverviewProps) => {
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("en-PH", { style: "currency", currency: "PHP" }).format(value);
 
   return (
-    <div className="w-full  p-4 rounded-lg ">
+    <div className="w-full p-4 rounded-lg">
       <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-white">Inventory Overview</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="border-none  shadow-md hover:shadow-lg transition-shadow">
+        <Card className="border-none shadow-md hover:shadow-lg transition-shadow">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Items</CardTitle>
           </CardHeader>

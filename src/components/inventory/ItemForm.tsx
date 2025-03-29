@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import {
   Card,
@@ -8,7 +8,6 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "../ui/card";
 import {
   Form,
@@ -35,7 +34,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "../ui/dialog";
 import { Plus, Save, X } from "lucide-react";
 
@@ -81,15 +79,22 @@ const ItemForm = ({
 
   const form = useForm<ItemFormValues>({
     defaultValues: editItem || defaultValues,
+    mode: "onChange", // Ensures real-time validation
   });
+
+  // Reset form when editItem changes, preserving existing values during edit
+  useEffect(() => {
+    form.reset(editItem || defaultValues);
+  }, [editItem, form]);
 
   const handleSubmit = async (data: ItemFormValues) => {
     setIsSubmitting(true);
     try {
-      // In a real implementation, this would send data to an API
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-      onSubmit(data);
-      onClose();
+      await onSubmit(data); // Pass data to parent component (e.g., to save to database)
+      if (!editItem) {
+        form.reset(defaultValues); // Reset only for new items, not edits
+      }
+      onClose(); // Close form after successful submission
     } catch (error) {
       console.error("Error submitting form:", error);
     } finally {
@@ -107,6 +112,7 @@ const ItemForm = ({
           <FormField
             control={form.control}
             name="name"
+            rules={{ required: "Item name is required" }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Item Name</FormLabel>
@@ -126,6 +132,7 @@ const ItemForm = ({
                 <FormLabel>Category</FormLabel>
                 <Select
                   onValueChange={field.onChange}
+                  value={field.value}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -149,6 +156,7 @@ const ItemForm = ({
           <FormField
             control={form.control}
             name="quantity"
+            rules={{ required: "Quantity is required", min: 0 }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Quantity</FormLabel>
@@ -158,6 +166,7 @@ const ItemForm = ({
                     min="0"
                     placeholder="0"
                     {...field}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
@@ -174,6 +183,7 @@ const ItemForm = ({
                 <FormLabel>Unit</FormLabel>
                 <Select
                   onValueChange={field.onChange}
+                  value={field.value}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -187,6 +197,7 @@ const ItemForm = ({
                     <SelectItem value="liters">Liters</SelectItem>
                     <SelectItem value="meters">Meters</SelectItem>
                     <SelectItem value="boxes">Boxes</SelectItem>
+                    <SelectItem value="sack">Sack</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -197,6 +208,7 @@ const ItemForm = ({
           <FormField
             control={form.control}
             name="minStockLevel"
+            rules={{ required: "Minimum stock level is required", min: 0 }}
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Minimum Stock Level</FormLabel>
@@ -206,6 +218,7 @@ const ItemForm = ({
                     min="0"
                     placeholder="5"
                     {...field}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
@@ -248,9 +261,10 @@ const ItemForm = ({
           <FormField
             control={form.control}
             name="cost"
+            rules={{ required: "Cost is required", min: 0 }}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Cost per Unit ($)</FormLabel>
+                <FormLabel>Cost per Unit (₱)</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -258,6 +272,7 @@ const ItemForm = ({
                     step="0.01"
                     placeholder="0.00"
                     {...field}
+                    value={field.value ?? ""}
                     onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
@@ -290,7 +305,7 @@ const ItemForm = ({
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || !form.formState.isValid}>
             {isSubmitting ? (
               <span className="flex items-center">
                 <svg
@@ -306,12 +321,12 @@ const ItemForm = ({
                     r="10"
                     stroke="currentColor"
                     strokeWidth="4"
-                  ></circle>
+                  />
                   <path
                     className="opacity-75"
                     fill="currentColor"
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
+                  />
                 </svg>
                 Saving...
               </span>
@@ -332,27 +347,7 @@ const ItemForm = ({
     </Form>
   );
 
-  // If used as a standalone component
-  if (!isOpen) {
-    return (
-      <Card className="w-full max-w-4xl mx-auto bg-background">
-        <CardHeader>
-          <CardTitle>
-            {editItem ? "Edit Inventory Item" : "Add New Inventory Item"}
-          </CardTitle>
-          <CardDescription>
-            {editItem
-              ? "Update the details of an existing inventory item"
-              : "Add a new item to your inventory with details and minimum stock levels"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>{formContent}</CardContent>
-      </Card>
-    );
-  }
-
-  // If used in a dialog
-  return (
+  return isOpen ? (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
@@ -368,6 +363,20 @@ const ItemForm = ({
         {formContent}
       </DialogContent>
     </Dialog>
+  ) : (
+    <Card className="w-full max-w-4xl mx-auto bg-background">
+      <CardHeader>
+        <CardTitle>
+          {editItem ? "Edit Inventory Item" : "Add New Inventory Item"}
+        </CardTitle>
+        <CardDescription>
+          {editItem
+            ? "Update the details of an existing inventory item"
+            : "Add a new item to your inventory with details and minimum stock levels"}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>{formContent}</CardContent>
+    </Card>
   );
 };
 

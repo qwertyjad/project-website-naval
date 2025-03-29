@@ -191,6 +191,7 @@ const PurchaseOrderForm = ({
                                 <SelectItem value="Tons">Tons</SelectItem>
                                 <SelectItem value="Meters">Meters</SelectItem>
                                 <SelectItem value="Liters">Liters</SelectItem>
+                                <SelectItem value="Sacks">Sack</SelectItem>
                               </SelectContent>
                             </Select>
                           </div>
